@@ -32,6 +32,7 @@ fn encode((decimal_number, base, ): (char, usize, )) -> String {
 
     if base >= max_base {
         BASE10_NUMERALS[BASE10_NUMERALS.len() - 1]
+            //This pow function is the main limiter for decimal size
             .repeat((10_u32.pow((base - max_base) as u32) * digit) as usize)
     } else {
         if digit == 9 {
