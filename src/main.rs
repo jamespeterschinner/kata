@@ -1,31 +1,46 @@
 use std::env;
 use std::io;
 use std::io::Write;
+use std::io::BufWriter;
 
-fn main() -> io::Result<()> {
+static  BASE10_NUMERALS: [&str; 7] = ["I", "X", "C", "M", "X̄", "C̄", "M̄"];
+
+static CENTRE_NUMERALS: [&str; 6] = ["V", "L", "D", "V̄", "L̄", "D̄"];
+
+fn main(){
     let args: Vec<String> = env::args().collect();
-    io::stdout().write_all(roman(&args[1]).as_bytes())
+    let mut writer = BufWriter::new(io::stdout());
+    let decimal_encoded_string = &args[1];
+    for roman_numeral in decimal_encoded_string
+        .chars()
+        .zip(iter_bases(decimal_encoded_string.len()))
+        .map(encode) {
+        writer.write(roman_numeral.as_bytes());
+    }
+
 }
 
 
 fn encode((decimal_number, base, ): (char, usize, )) -> String {
     let digit = decimal_number.to_digit(10).unwrap();
-    if base >= 6 {
-        "M".repeat((10_u32.pow((base - 3) as u32) * digit) as usize)
+
+
+    if base >= CENTRE_NUMERALS.len() {
+        BASE10_NUMERALS[BASE10_NUMERALS.len() - 1]
+            .repeat((10_u32.pow((base - 3) as u32) * digit) as usize)
     } else {
-        let bases = ["I", "X", "C", "M", "X̄", "C̄", "M̄"];
-        let center = ["V", "L", "D", "V̄", "L̄", "D̄"];
+
 
 
         if digit == 9 {
-            format!("{}{}", bases[base], bases[base + 1])
+            format!("{}{}", BASE10_NUMERALS[base], BASE10_NUMERALS[base + 1])
         } else if digit >= 5 {
-            format!("{}{}", center[base], bases[base].repeat((digit - 5) as usize))
+            format!("{}{}", CENTRE_NUMERALS[base], BASE10_NUMERALS[base].repeat((digit - 5) as usize))
         } else if digit == 4 {
-            format!("{}{}", bases[base], center[base])
+            format!("{}{}", BASE10_NUMERALS[base], CENTRE_NUMERALS[base])
         } else {
             // Less than 4
-            bases[base].repeat(digit as usize)
+            BASE10_NUMERALS[base].repeat(digit as usize)
         }
     }
 }
@@ -47,12 +62,3 @@ fn iter_bases(largest_base: usize) -> Bases {
     Bases {base: largest_base}
 }
 
-fn roman(decimal_encoded_string: &String) -> String {
-    let result: Vec<String> = decimal_encoded_string
-        .chars()
-        .zip(iter_bases(decimal_encoded_string.len()))
-        .map(encode)
-        .collect();
-
-    result.join("")
-}
