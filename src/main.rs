@@ -2,7 +2,6 @@ use std::env;
 use std::io;
 use std::io::BufWriter;
 use std::io::Write;
-use std::cmp::max;
 
 static BASE10_NUMERALS: [&str; 7] = ["I", "X", "C", "M", "X̄", "C̄", "M̄"];
 
@@ -32,7 +31,8 @@ fn encode((decimal_number, base, ): (char, usize, )) -> String {
         if digit == 9 {
             format!("{}{}", BASE10_NUMERALS[base], BASE10_NUMERALS[base + 1])
         } else if digit >= 5 {
-            format!("{}{}", CENTRE_NUMERALS[base], BASE10_NUMERALS[base].repeat((digit - 5) as usize))
+            format!("{}{}", CENTRE_NUMERALS[base], BASE10_NUMERALS[base]
+                .repeat((digit - 5) as usize))
         } else if digit == 4 {
             format!("{}{}", BASE10_NUMERALS[base], CENTRE_NUMERALS[base])
         } else {
