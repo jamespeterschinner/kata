@@ -7,16 +7,22 @@ static BASE10_NUMERALS: [&str; 7] = ["I", "X", "C", "M", "X̄", "C̄", "M̄"];
 
 static CENTRE_NUMERALS: [&str; 6] = ["V", "L", "D", "V̄", "L̄", "D̄"];
 
-fn main() {
-    let args: Vec<String> = env::args().collect();
-    let mut writer = BufWriter::new(io::stdout());
-    let decimal_encoded_string = &args[1];
-    for roman_numeral in decimal_encoded_string
-        .chars()
-        .zip(iter_bases(decimal_encoded_string.len()))
-        .map(encode) {
-        writer.write(roman_numeral.as_bytes());
+struct Bases {
+    base: usize
+}
+
+
+impl Iterator for Bases {
+    type Item = usize;
+
+    fn next(&mut self) -> Option<usize> {
+        self.base = self.base - 1;
+        Some(self.base)
     }
+}
+
+fn iter_bases(largest_base: usize) -> Bases {
+    Bases { base: largest_base }
 }
 
 
@@ -42,20 +48,16 @@ fn encode((decimal_number, base, ): (char, usize, )) -> String {
     }
 }
 
-struct Bases {
-    base: usize
-}
 
-impl Iterator for Bases {
-    type Item = usize;
-
-    fn next(&mut self) -> Option<usize> {
-        self.base = self.base - 1;
-        Some(self.base)
+fn main() {
+    let args: Vec<String> = env::args().collect();
+    let mut writer = BufWriter::new(io::stdout());
+    let decimal_encoded_string = &args[1];
+    for roman_numeral in decimal_encoded_string
+        .chars()
+        .zip(iter_bases(decimal_encoded_string.len()))
+        .map(encode) {
+        writer.write(roman_numeral.as_bytes());
     }
-}
-
-fn iter_bases(largest_base: usize) -> Bases {
-    Bases { base: largest_base }
 }
 
