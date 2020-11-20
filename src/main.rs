@@ -1,13 +1,14 @@
 use std::env;
 use std::io;
-use std::io::Write;
 use std::io::BufWriter;
+use std::io::Write;
+use std::cmp::max;
 
-static  BASE10_NUMERALS: [&str; 7] = ["I", "X", "C", "M", "X̄", "C̄", "M̄"];
+static BASE10_NUMERALS: [&str; 7] = ["I", "X", "C", "M", "X̄", "C̄", "M̄"];
 
 static CENTRE_NUMERALS: [&str; 6] = ["V", "L", "D", "V̄", "L̄", "D̄"];
 
-fn main(){
+fn main() {
     let args: Vec<String> = env::args().collect();
     let mut writer = BufWriter::new(io::stdout());
     let decimal_encoded_string = &args[1];
@@ -17,21 +18,17 @@ fn main(){
         .map(encode) {
         writer.write(roman_numeral.as_bytes());
     }
-
 }
 
 
 fn encode((decimal_number, base, ): (char, usize, )) -> String {
     let digit = decimal_number.to_digit(10).unwrap();
+    let max_base = CENTRE_NUMERALS.len();
 
-
-    if base >= CENTRE_NUMERALS.len() {
+    if base >= max_base {
         BASE10_NUMERALS[BASE10_NUMERALS.len() - 1]
-            .repeat((10_u32.pow((base - 3) as u32) * digit) as usize)
+            .repeat((10_u32.pow((base - max_base) as u32) * digit) as usize)
     } else {
-
-
-
         if digit == 9 {
             format!("{}{}", BASE10_NUMERALS[base], BASE10_NUMERALS[base + 1])
         } else if digit >= 5 {
@@ -59,6 +56,6 @@ impl Iterator for Bases {
 }
 
 fn iter_bases(largest_base: usize) -> Bases {
-    Bases {base: largest_base}
+    Bases { base: largest_base }
 }
 
